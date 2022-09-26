@@ -501,5 +501,31 @@ ENTRYPOINT python3 while.py
 # CMD and ENtrypoint both are same 
 ```
 
+### using CMD and Entrypoint all together 
+
+```
+FROM alpine 
+LABEL name=ashutoshh
+RUN apk add python3  && mkdir /pycodes
+ADD https://raw.githubusercontent.com/redashu/pythonLang/main/while.py  /pycodes/
+COPY cisco.py  /pycodes/
+# COPY and ADD both are same but add can take input from URL as well
+WORKDIR /pycodes
+ENTRYPOINT ["python3"]
+CMD ["while.py"]
+ 
+```
+
+### demos 
+
+```
+ 119  docker build -t cmdent:v1  -f  alpine.dockerfile  .
+  120  history 
+  121  docker run -itd --name c1  cmdent:v1
+  122  docker  ps   |   grep -i c1
+  123  docker run -itd --name c2  cmdent:v1 cisco.py 
+```
+
+
 
 
