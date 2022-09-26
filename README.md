@@ -439,5 +439,53 @@ ce068802cd35   ankurpython:v1   "python /mycode/cisc…"   12 seconds ago   Up 1
 
 ```
 
+### another dockerfile for python code 
+
+```
+FROM oraclelinux:8.4 
+LABEL name=ashutoshh
+RUN yum install python3 -y && mkdir /ashu/
+COPY cisco.py /ashu/
+WORKDIR /ashu
+# to change directory of image permanently during image build time 
+CMD ["python3","cisco.py"] 
+```
+
+### building it 
+
+```
+[ashu@ip-172-31-91-4 pythonapp]$ ls
+ashu.dockerfile  cisco.py  Dockerfile
+[ashu@ip-172-31-91-4 pythonapp]$ docker build -t ashupython:v2  -f ashu.dockerfile  .  
+Sending build context to Docker daemon  4.096kB
+Step 1/6 : FROM oraclelinux:8.4
+8.4: Pulling from library/oraclelinux
+a4df6f21af84: Extracting  57.38MB/90.36MB
+
+
+
+```
+
+### Ubuntu based docker images 
+
+```
+FROM ubuntu
+LABEL name=ashutoshh
+RUN apt update && apt install python3 -y && mkdir /ashu/
+COPY cisco.py /ashu/
+WORKDIR /ashu
+CMD ["python3","cisco.py"]
+```
+
+### lets build and compare 
+
+```
+102  docker build -t ashupython:v3  -f ubuntu.dockerfile  .  
+  103  history 
+[ashu@ip-172-31-91-4 pythonapp]$ docker images  |   grep ashu
+ashupython               v3        8194bd604108   9 seconds ago    145MB
+ashupython               v2        050dd086560a   14 minutes ago   445MB
+ashupython               v1        ecc8fe57b04b   39 minutes ago   921MB
+```
 
 
