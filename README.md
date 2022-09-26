@@ -426,5 +426,18 @@ ashupython               v1        ecc8fe57b04b   About a minute ago   921MB
 quay.io/jitesoft/nginx   latest    4b0
 ```
 
+### lets create container 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker  run -itd --name ashupyc1  ashupython:v1  
+6e08da25f477a255693292ba3b8657446bb9f365378fface58edeaef3acaaa06
+[ashu@ip-172-31-91-4 ~]$ docker  ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS     NAMES
+6e08da25f477   ashupython:v1    "python /mycode/cisc…"   7 seconds ago    Up 5 seconds              ashupyc1
+ce068802cd35   ankurpython:v1   "python /mycode/cisc…"   12 seconds ago   Up 11 seconds             ankur_python
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
 
 
