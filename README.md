@@ -336,3 +336,7 @@ Deleted: sha256:10034da3f5f17bb210a4f3441df7e27dd14f7f33d1e85828db614a8dd68ccc9d
 Deleted: sha256:db12f3053429d559642a9c0cc2deb4024a59efa58df22f54f029d6b9d6a248ff
 ```
 
+### building container images 
+
+<img src="bimg.png">
+
