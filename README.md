@@ -526,6 +526,73 @@ CMD ["while.py"]
   123  docker run -itd --name c2  cmdent:v1 cisco.py 
 ```
 
+### image sharing 
 
+<img src="images.png">
+
+## pushing images to docker hub
+
+### tag image in docker hub format 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker  images  |   grep ashu
+ashualppycode            v1              139c901a92e6   58 minutes ago      55.8MB
+ashupython               v3              8194bd604108   2 hours ago         145MB
+ashupython               v2              050dd086560a   2 hours ago         445MB
+ashupython               v1              ecc8fe57b04b   2 hours ago         921MB
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ docker  tag  ashupython:v3    docker.io/dockerashu/python:ciscocodev1 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ docker  images  |   grep ashu
+ashualppycode            v1              139c901a92e6   About an hour ago   55.8MB
+dockerashu/python        ciscocodev1     8194bd604108   2 hours ago         145MB
+ashupython               v3              8194bd604108   2 hours ago         145MB
+ashupython               v2              050dd086560a   2 hours ago         445MB
+ashupython               v1              ecc8fe57b04b   2 hours ago         921MB
+[ashu@ip-172-31-91-4 ~]$ 
+
+
+```
+
+### docker hub login 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker login 
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: dockerashu
+Password: 
+WARNING! Your password will be stored unencrypted in /home/ashu/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+
+```
+
+### push image 
+
+```
+ashu@ip-172-31-91-4 ~]$ docker push docker.io/dockerashu/python:ciscocodev1
+The push refers to repository [docker.io/dockerashu/python]
+f37a3c1404d9: Pushed 
+100b297101d3: Pushed 
+7f5cbd8cc787: Mounted from library/ubuntu 
+
+
+```
+
+### docker logout optional part 
+
+```
+
+[ashu@ip-172-31-91-4 ~]$ docker logout 
+Removing login credentials for https://index.docker.io/v1/
+
+```
 
 
