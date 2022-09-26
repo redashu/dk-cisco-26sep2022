@@ -488,4 +488,18 @@ ashupython               v2        050dd086560a   14 minutes ago   445MB
 ashupython               v1        ecc8fe57b04b   39 minutes ago   921MB
 ```
 
+### alpine based docker image for python code 
+
+```
+FROM alpine 
+LABEL name=ashutoshh
+RUN apk add python3  && mkdir /pycodes
+ADD https://raw.githubusercontent.com/redashu/pythonLang/main/while.py  /pycodes/
+# COPY and ADD both are same but add can take input from URL as well
+WORKDIR /pycodes
+ENTRYPOINT python3 while.py 
+# CMD and ENtrypoint both are same 
+```
+
+
 
