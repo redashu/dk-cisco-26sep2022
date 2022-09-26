@@ -187,5 +187,152 @@ b58a23c12d6f   alpine:latest   "ping google.com"   3 seconds ago    Up 1 second 
 
 ```
 
+### container resource consumption 
 
+```
+[ashu@ip-172-31-91-4 ~]$ docker  stats  ashuc1 
+
+
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT   MEM %     NET I/O           BLOCK I/O   PIDS
+1f6544196840   ashuc1    0.02%     352KiB / 7.761GiB   0.00%     65.8kB / 64.2kB   0B / 0B     1
+^C
+
+```
+
+### show container process output 
+
+```
+docker logs ashuc1 
+
+```
+### docker storage inside host 
+
+```
+[root@ip-172-31-91-4 ~]# cd  /var/lib/docker/
+[root@ip-172-31-91-4 docker]# ls
+buildkit  containers  image  network  overlay2  plugins  runtimes  swarm  tmp  trust  volumes
+[root@ip-172-31-91-4 docker]# 
+
+```
+
+### some details about docker daemon 
+
+```
+ 44  cd /etc/sysconfig/
+   45  ls
+   46  cat  docker
+   47  systemctl status docker 
+   48  journalctl -u docker 
+   49  history 
+[root@ip-172-31-91-4 sysconfig]# systemctl start docker 
+[root@ip-172-31-91-4 sysconfig]# systemctl status  docker 
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/usr/lib/systemd/system/docker.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2022-09-26 06:32:05 UTC; 5s ago
+     Docs: https://docs.docker.com
+  Process: 2613 ExecStartPre=/usr/libexec/docker/docker-setup-runtimes.sh (code=exited, status=0/SUCCESS)
+  Process: 2610 ExecStartPre=/bin/mkdir -p /run/docker (code=exited, status=0/SUCCESS)
+ Main PID: 2616 (dockerd)
+    Tasks: 19
+   Memory: 24.1M
+
+```
+
+### restart docker daemon is gonna stop docker containers
+
+```
+ashu@ip-172-31-91-4 ~]$ docker  ps -a
+CONTAINER ID   IMAGE           COMMAND               CREATED             STATUS                         PORTS     NAMES
+1de448d0ede9   alpine:latest   "ping google.com"     16 minutes ago      Exited (137) 3 minutes ago               pasha1
+a8bdb738d96d   alpine:latest   "ping google.com"     18 minutes ago      Exited (0) 18 minutes ago                ashuc2
+c1bb9c1fc6f3   alpine:latest   "ping google.com"     19 minutes ago      Exited (137) 3 minutes ago               yashc1
+20d1e5fee0e9   alpine          "ping google.com"     22 minutes ago      Exited (137) 3 minutes ago               narc2
+8bbadccfeab4   alpine:latest   "ping google.co.in"   23 minutes ago      Exited (137) 3 minutes ago               balaji
+026211be8b6d   alpine:latest   "ping google.com"     23 minutes ago      Exited (137) 3 minutes ago               ankurc1
+a74a382c9d81   alpine:latest   "ping google.com"     23 minutes ago      Exited (137) 3 minutes ago               pramod1
+bbfd6b72ffdf   alpine          "pwd"                 23 minutes ago      Exited (0) 23 minutes ago                narc1
+b0e199cbb4e8   alpine:latest   "ping google.com"     23 minutes ago      Exited (137) 3 minutes ago               priyanka
+b58a23c12d6f   alpine:latest   "ping google.com"     24 minutes ago      Exited (137) 3 minutes ago               sridhar1
+```
+
+### starting a stopped container 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker  start  ashuc1
+ashuc1
+[ashu@ip-172-31-91-4 ~]$ docker  ps
+CONTAINER ID   IMAGE           COMMAND             CREATED              STATUS              PORTS     NAMES
+b29c17f6e5f3   alpine          "ping fb.com"       About a minute ago   Up About a minute             ashuc4
+1f6544196840   alpine:latest   "ping google.com"   27 minutes ago       Up 2 seconds                  ashuc1
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
+### stop a running container 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker  stop   ashuc1
+ashuc1
+
+```
+
+### access container shell 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker  exec  -it   ashuc1   sh 
+/ # 
+/ # cat  /etc/os-release 
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.16.2
+PRETTY_NAME="Alpine Linux v3.16"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://gitlab.alpinelinux.org/alpine/aports/-/issues"
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    tmp    usr    var
+/ # ifconfig 
+eth0      Link encap:Ethernet  HWaddr 02:42:AC:11:00:03  
+          inet addr:172.17.0.3  Bcast:172.17.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:263 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:251 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:24970 (24.3 KiB)  TX bytes:23870 (23.3 KiB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # whoami
+root
+/ # exit
+
+```
+
+### removing a contaienr 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker  stop  ashuc1
+ashuc1
+[ashu@ip-172-31-91-4 ~]$ docker  rm ashuc1
+ashuc1
+
+```
+
+### removing image 
+
+```
+ashu@ip-172-31-91-4 ~]$ docker rmi python:latest  
+Untagged: python:latest
+Untagged: python@sha256:e9c35537103a2801a30b15a77d4a56b35532c964489b125ec1ff24f3d5b53409
+Deleted: sha256:e285995a34947a2d58defdbdd65eb7478a4986292ff13127678c1f5ace92c9a2
+Deleted: sha256:27d6b0809ed1700079fcf34f5be67319503291c466d9fd2015dcbd5eeac4bae2
+Deleted: sha256:bb048bc446f872e6cd9b314700df0d8bed28a9a47587e008bf16a7f88b4e6571
+Deleted: sha256:10034da3f5f17bb210a4f3441df7e27dd14f7f33d1e85828db614a8dd68ccc9d
+Deleted: sha256:db12f3053429d559642a9c0cc2deb4024a59efa58df22f54f029d6b9d6a248ff
+```
 
