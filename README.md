@@ -340,3 +340,91 @@ Deleted: sha256:db12f3053429d559642a9c0cc2deb4024a59efa58df22f54f029d6b9d6a248ff
 
 <img src="bimg.png">
 
+
+## Building images using dockerfile 
+
+### demo 1 : python code with dockerfile 
+
+### Dockerfile 
+
+```
+FROM python
+# we are taking sample python image from docker hub 
+LABEL name=ashutoshh
+LABEL email=ashutosh@linux.com 
+# optional field 
+RUN mkdir /mycode
+# to get shell while building  image 
+COPY cisco.py /mycode/
+# copy code to image during image build time 
+CMD ["python","/mycode/cisco.py"]
+# setting default program to this image 
+
+```
+
+### python code 
+
+```
+import time
+
+while True:
+    print("Hello all , welcome to python..!!")
+    time.sleep(3)
+    print("Welcome to Cisco ..")
+    time.sleep(2)
+    print("Welcome to Containers ..!!")
+    print("______________________")
+    time.sleep(3)
+```
+
+### lets build new image 
+
+```
+javaapp  pythonapp  webapps
+[ashu@ip-172-31-91-4 ashu-images]$ ls  pythonapp/
+cisco.py  Dockerfile
+[ashu@ip-172-31-91-4 ashu-images]$ cd pythonapp/
+[ashu@ip-172-31-91-4 pythonapp]$ ls
+cisco.py  Dockerfile
+[ashu@ip-172-31-91-4 pythonapp]$ docker  build -t  ashupython:v1 . 
+Sending build context to Docker daemon  3.072kB
+Step 1/6 : FROM python
+ ---> e285995a3494
+Step 2/6 : LABEL name=ashutoshh
+ ---> Running in 6ef00069b74b
+Removing intermediate container 6ef00069b74b
+ ---> 29a281b959b7
+Step 3/6 : LABEL email=ashutosh@linux.com
+ ---> Running in c9a3e40ac4f9
+Removing intermediate container c9a3e40ac4f9
+ ---> caebd14bab43
+Step 4/6 : RUN mkdir /mycode
+ ---> Running in f7f0c7c8f3ce
+Removing intermediate container f7f0c7c8f3ce
+ ---> 44d14ca99b38
+Step 5/6 : COPY cisco.py /mycode/
+ ---> fceea2b4b1c0
+Step 6/6 : CMD ["python","/mycode/cisco.py"]
+ ---> Running in 0c46a4435577
+Removing intermediate container 0c46a4435577
+ ---> ecc8fe57b04b
+Successfully built ecc8fe57b04b
+Successfully tagged ashupython:v1
+```
+
+### lets check it 
+
+```
+ashu@ip-172-31-91-4 pythonapp]$ docker images
+REPOSITORY               TAG       IMAGE ID       CREATED              SIZE
+suhaspython              v1        b557dbecaadc   16 seconds ago       921MB
+sridharpython            v1        a65dd8e7af31   20 seconds ago       921MB
+pywelcome                v1        d0fc1250e6b8   24 seconds ago       921MB
+priyankapython           v1        628d48c66dee   About a minute ago   921MB
+ankurpython              v1        fa884ea97da9   About a minute ago   921MB
+ashupython               v1        ecc8fe57b04b   About a minute ago   921MB
+quay.io/jitesoft/nginx   latest    4b0
+```
+
+
+
