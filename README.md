@@ -332,6 +332,59 @@ round-trip min/avg/max = 0.104/0.104/0.105 ms
 
 ```
 
+### None network for container with no networking 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker network ls
+NETWORK ID     NAME         DRIVER    SCOPE
+c11f24e289c6   ankurbrx1    bridge    local
+556cb3ff2713   ankurbrx2    bridge    local
+b1821c82622a   bridge       bridge    local
+82e9d6480631   host         host      local
+9d2ab7b772c8   none         null      local
+c4c3e784efaa   suhas-brx1   bridge    local
+8c401a38c874   suhas-brx2   bridge    local
+[ashu@ip-172-31-91-4 ~]$ docker  run -it --rm  --network none alpine 
+/ # 
+/ # ifconfig 
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # exit
+
+```
+
+### container with host netowrking 
+
+```
+[ashu@ip-172-31-91-4 ~]$ docker run -it --rm --network host  alpine 
+/ # ifconfig 
+docker0   Link encap:Ethernet  HWaddr 02:42:A7:65:8C:53  
+          inet addr:172.17.0.1  Bcast:172.17.255.255  Mask:255.255.0.0
+          inet6 addr: fe80::42:a7ff:fe65:8c53/64 Scope:Link
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:11998 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:11253 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:22822235 (21.7 MiB)  TX bytes:980401 (957.4 KiB)
+
+eth0      Link encap:Ethernet  HWaddr 12:E8:68:B5:5E:E9  
+          inet addr:172.31.91.4  Bcast:172.31.95.255  Mask:255.255.240.0
+          inet6 addr: fe80::10e8:68ff:feb5:5ee9/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:9001  Metric:1
+          RX packets:423100 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:320924 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:167690288 (159.9 MiB)  TX bytes:85162244 (81.2 MiB)
+
+
+```
+
 
 
 
