@@ -588,6 +588,60 @@ ashuc2              "/docker-entrypoint.…"   ashuapp2            running      
 
 
 ```
+### non persistent nature with container 
+
+<img src="per.png">
+
+### creating volume 
+
+```
+[root@ip-172-31-91-4 ~]# docker  volume  create  ashuvol1
+ashuvol1
+[root@ip-172-31-91-4 ~]# docker  volume  ls
+DRIVER    VOLUME NAME
+local     8a551bb2bef45f2b8845e1ebc55780f358ef6a43fa3efd10da67c11698125954
+local     ashuvol1
+local     bb62c68f7cb7c9f6539c047156ef2085bba3884863e0eb5196b5ee9b75badfa1
+[root@ip-172-31-91-4 ~]# 
+```
+
+### explain 
+
+```
+[root@ip-172-31-91-4 ~]# docker  volume  inspect  ashuvol1
+[
+    {
+        "CreatedAt": "2022-09-27T11:30:38Z",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/ashuvol1/_data",
+        "Name": "ashuvol1",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+
+```
+
+### creating container with volume 
+
+```
+[root@ip-172-31-91-4 ~]# docker  run -tid --name ashucc11 -v  ashuvol1:/mnt/data:rw  ashust:v1  
+f6fdd75309ae6e342e061be9fa8c4c7f83c4fe8923b298e775ede0925e2e15c2
+[root@ip-172-31-91-4 ~]# 
+[root@ip-172-31-91-4 ~]# 
+[root@ip-172-31-91-4 ~]# docker  ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED          STATUS          PORTS     NAMES
+bdd8ab71c4ef   ashust:v1          "./datagen.sh"           40 seconds ago   Up 38 seconds             priyankacc11
+76297fa3dfd6   sri:v2             "./datagen.sh -v sri…"   53 seconds ago   Up 52 seconds             sridhar1
+f6fdd75309ae   ashust:v1          "./datagen.sh"           57 seconds ago   Up 55 seconds             ashucc11
+c99e901ce41d   steve_volume1:v1   "bash"                   9 minutes ago    Up 9 minutes              pedantic_poitras
+3f42c40664d2   steve_volume1:v1   "./datagen.sh"           9 minutes ago    Up 9 minutes              steve_v1
+[root@ip-172-31-91-4 ~]# 
+
+```
+
+
 
 
 
