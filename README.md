@@ -494,5 +494,59 @@ exit
 [ashu@ip-172-31-91-4 ashu-compose]$ 
 ```
 
+### Dockerfile with docker-compose 
+
+```
+version: '3.8' # compose file version 
+services: # app stack 
+  ashufrontend: # name of app component 
+    image: ashunginx:ciscov2
+    build: # for calling dockerfile
+      context: ../webapps # location of dockerfile 
+      dockerfile: Dockerfile  # name of dockerfile 
+    container_name: ashuwebc1 
+    restart: always
+    ports:
+    - "1234:80"
+    mem_limit: 100M # check this feature 
+
+  
+```
+
+### lets run it 
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose up -d --build 
+[+] Building 0.3s (7/7) FINISHED                                                                        
+ => [internal] load build definition from Dockerfile                                               0.0s
+ => => transferring dockerfile: 284B                                                               0.0s
+ => [internal] load .dockerignore                                                                  0.0s
+ => => transferring context: 209B                                                                  0.0s
+ => [internal] load metadata for docker.io/library/nginx:latest                                    0.0s
+ => [internal] load build context                                                                  0.1s
+ => => transferring context: 1.69MB                                                                0.0s
+ => [1/2] FROM docker.io/library/nginx                                                             0.2s
+ => [2/2] ADD project-website-template  /usr/share/nginx/html/                                     0.0s
+ => exporting to image                                                                             0.0s
+ => => exporting layers                                                                            0.0s
+ => => writing image sha256:729dbb9e1fb73fc0420d71b29826996ada9a1a67b0516b634ccee44aca543869       0.0s
+ => => naming to docker.io/library/ashunginx:ciscov2                                               0.0s
+[+] Running 2/2
+ ⠿ Network ashu-compose_default  Created                                                           0.0s
+ ⠿ Container ashuwebc1           Started                                                           0.6s
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+```
+
+### ##
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashuwebc1           "/docker-entrypoint.…"   ashufrontend        running             0.0.0.0:1234->80/tcp, :::1234->80/tcp
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  images
+Container           Repository          Tag                 Image Id            Size
+ashuwebc1           ashunginx           ciscov2             729dbb9e1fb7        143MB
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+```
 
 
