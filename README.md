@@ -388,7 +388,7 @@ eth0      Link encap:Ethernet  HWaddr 12:E8:68:B5:5E:E9
 
 ## Need of docker compose -- 
 
-<img src="compose.yaml">
+<img src="compose.png">
 
 ### installing docker-compose as client side tool 
 
@@ -548,5 +548,46 @@ Container           Repository          Tag                 Image Id            
 ashuwebc1           ashunginx           ciscov2             729dbb9e1fb7        143MB
 [ashu@ip-172-31-91-4 ashu-compose]$ 
 ```
+
+### new demo of compose file 
+
+```
+version: '3.8'
+networks: # to create network 
+  ashubr1: # name of bridge
+services:
+  ashuapp1:
+    image: alpine
+    container_name: ashuc1
+    command: ping fb.com # replacing default process
+    networks:
+    - ashubr1 
+  ashuapp2:
+    image: nginx 
+    container_name: ashuc2
+    ports:
+    - "1234:80"
+    restart: always 
+    networks:
+    - ashubr1 
+```
+
+### running it 
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  -f hello.yaml  up -d
+[+] Running 3/3
+ ⠿ Network ashu-compose_ashubr1  Created                                                           0.0s
+ ⠿ Container ashuc1              Started                                                           0.7s
+ ⠿ Container ashuc2              Started                                                           0.8s
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  -f hello.yaml  ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"            ashuapp1            running             
+ashuc2              "/docker-entrypoint.…"   ashuapp2            running             0.0.0.0:1234->80/tcp, :::1234->80/tcp
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+
+
+```
+
 
 
