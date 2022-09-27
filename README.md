@@ -386,6 +386,113 @@ eth0      Link encap:Ethernet  HWaddr 12:E8:68:B5:5E:E9
 ```
 
 
+## Need of docker compose -- 
+
+<img src="compose.yaml">
+
+### installing docker-compose as client side tool 
+
+```
+[root@ip-172-31-91-4 ~]# curl -SL https://github.com/docker/compose/releases/download/v2.11.1/docker-compose-linux-x86_64 -o  /usr/bin/docker-compose 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 42.4M  100 42.4M    0     0   168M      0 --:--:-- --:--:-- --:--:--  425M
+[root@ip-172-31-91-4 ~]# chmod +x /usr/bin/docker-compose 
+[root@ip-172-31-91-4 ~]# 
+
+
+```
+
+### checking it 
+
+```
+[ashu@ip-172-31-91-4 webapps]$ docker-compose version 
+Docker Compose version v2.11.1
+[ashu@ip-172-31-91-4 webapps]$ 
+
+```
+
+### Demo1 
+
+```
+version: '3.8' # compose file version 
+services: # app stack 
+  ashufrontend: # name of app component 
+    image: ashunginx:ciscov1
+    container_name: ashuwebc1 
+    restart: always
+    ports:
+    - "1234:80"
+    mem_limit: 100M # check this feature 
+
+  
+```
+
+### lets run it 
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ ls
+docker-compose.yaml
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose up -d
+[+] Running 2/2
+ ⠿ Network ashu-compose_default  Created                                                           0.0s
+ ⠿ Container ashuwebc1           Started                                                           0.6s
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashuwebc1           "/docker-entrypoint.…"   ashufrontend        running             0.0.0.0:1234->80/tcp, :::1234->80/tcp
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+
+
+```
+
+### few more compose command 
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  stop 
+[+] Running 1/1
+ ⠿ Container ashuwebc1  Stopped                                                                                             0.2s
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashuwebc1           "/docker-entrypoint.…"   ashufrontend        exited (0)          
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+```
+
+###
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  start
+[+] Running 1/1
+ ⠿ Container ashuwebc1  Started                                                                                             0.5s
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashuwebc1           "/docker-entrypoint.…"   ashufrontend        running             0.0.0.0:1234->80/tcp, :::1234->80/tcp
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+```
+
+### 
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose  exec -it ashufrontend  bash 
+root@7d391408c7aa:/# 
+root@7d391408c7aa:/# 
+root@7d391408c7aa:/# ls
+bin   dev                  docker-entrypoint.sh  home  lib64  mnt  proc  run   srv  tmp  var
+boot  docker-entrypoint.d  etc                   lib   media  opt  root  sbin  sys  usr
+root@7d391408c7aa:/# exit
+exit
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+```
+
+### clean up 
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ docker-compose down 
+[+] Running 2/2
+ ⠿ Container ashuwebc1           Removed                                                                                    0.2s
+ ⠿ Network ashu-compose_default  Removed                                                                                    0.1s
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+```
 
 
 
