@@ -403,5 +403,137 @@ sri1               1/1     Running             0          2s
 
 ```
 
+### more info about pod 
+
+```
+ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  pods  ashupod-123 -o wide
+NAME          READY   STATUS    RESTARTS   AGE     IP                NODE            NOMINATED NODE   READINESS GATES
+ashupod-123   1/1     Running   0          8m39s   192.168.174.193   minion-node-3   <none>           <none>
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+
+```
+
+### checking container process output 
+
+```
+ 427  kubectl  logs  ashupod-123  
+  428  history 
+  429  kubectl  logs -f  ashupod-123  
+```
+
+### access shell of pod container 
+
+```
+[ashu@ip-172-31-91-4 ~]$ kubectl   exec  -it  ashupod-123    -- sh 
+/ # 
+/ # 
+/ # cat  /etc/os-release 
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.16.2
+PRETTY_NAME="Alpine Linux v3.16"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://gitlab.alpinelinux.org/alpine/aports/-/issues"
+/ # ps  -e
+PID   USER     TIME  COMMAND
+    1 root      0:00 ping fb.com
+    7 root      0:00 sh
+   14 root      0:00 ps -e
+/ # ifconfig 
+eth0      Link encap:Ethernet  HWaddr 66:37:2A:03:96:50  
+          inet addr:192.168.174.193  Bcast:0.0.0.0  Mask:255.255.255.255
+          inet6 addr: fe80::6437:2aff:fe03:9650/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:8981  Metric:1
+          RX packets:856 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:865 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:82870 (80.9 KiB)  TX bytes:81916 (79.9 KiB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # exit
+
+```
+
+### describe pod 
+
+```
+[ashu@ip-172-31-91-4 ~]$ kubectl  describe  pod  ashupod-123
+Name:             ashupod-123
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minion-node-3/172.31.84.128
+Start Time:       Wed, 28 Sep 2022 10:04:46 +0000
+Labels:           <none>
+Annotations:      cni.projectcalico.org/containerID: d26a580a097a812cf7ab57fd826e6088568eae767a3d46db529246e896102bef
+                  cni.projectcalico.org/podIP: 192.168.174.193/32
+                  cni.projectcalico.org/podIPs: 192.168.174.193/32
+Status:           Running
+IP:               192.168.174.193
+IPs:
+  IP:  192.168.174.193
+Containers:
+  ashuc1:
+    Container ID:  containerd://876e0564bf71cc303c66539f5fbe6f0e52b4f928688e296e78da904a748a291c
+    Image:         alpine
+    Image ID:      docker.io/library/alpine@sha256:bc41182d7ef5ffc53a40b044e725193bc10142a1243f395ee852a8d9730fc2ad
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -c
+      ping fb.com
+    State:          Running
+      Started:      Wed, 28 Sep 2022 10:04:47 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8r4tk (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  kube-api-access-8r4tk:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  15m   default-scheduler  Successfully assigned default/ashupod-123 to minion-node-3
+  Normal  Pulling    15m   kubelet            Pulling image "alpine"
+  Normal  Pulled     15m   kubelet            Successfully pulled image "alpine" in 504.686493ms
+  Normal  Created    15m   kubelet            Created container ashuc1
+  Normal  Started    15m   kubelet            Started container ashuc1
+```
+
+### deleting pod 
+
+```
+[ashu@ip-172-31-91-4 ~]$ kubectl  delete  pod  ashupod-123
+pod "ashupod-123" deleted
+
+
+```
 
 
