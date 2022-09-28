@@ -280,4 +280,80 @@ services:
 <img src="etcd.png">
 
 
+## TIme for setup k8s client 
+
+### use link 
+[click_here](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+
+
+### installing on linux machine 
+
+```
+[root@ip-172-31-91-4 ~]# curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   138  100   138    0     0   3137      0 --:--:-- --:--:-- --:--:--  3209
+100 42.9M  100 42.9M    0     0  96.8M      0 --:--:-- --:--:-- --:--:--  155M
+[root@ip-172-31-91-4 ~]# ls
+ddagent-install.log  kubectl  test
+[root@ip-172-31-91-4 ~]# mv kubectl /usr/bin/
+[root@ip-172-31-91-4 ~]# chmod +x /usr/bin/kubectl 
+[root@ip-172-31-91-4 ~]# 
+
+
+```
+### lets test some api request 
+
+
+```
+[ashu@ip-172-31-91-4 ashu-compose]$ kubectl  version  -o yaml 
+clientVersion:
+  buildDate: "2022-09-21T14:33:49Z"
+  compiler: gc
+  gitCommit: 5835544ca568b757a8ecae5c153f317e5736700e
+  gitTreeState: clean
+  gitVersion: v1.25.2
+  goVersion: go1.19.1
+  major: "1"
+  minor: "25"
+  platform: linux/amd64
+kustomizeVersion: v4.5.7
+
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+[ashu@ip-172-31-91-4 ashu-compose]$ kubectl  get  nodes
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+[ashu@ip-172-31-91-4 ashu-compose]$ 
+
+```
+
+### lets send first successful request to apiServer 
+
+```
+[ashu@ip-172-31-91-4 ashu-images]$ kubectl   get  nodes  --kubeconfig admin.conf 
+NAME            STATUS   ROLES           AGE    VERSION
+control-plane   Ready    control-plane   101m   v1.25.2
+minion-node-1   Ready    <none>          100m   v1.25.2
+minion-node-2   Ready    <none>          99m    v1.25.2
+minion-node-3   Ready    <none>          99m    v1.25.2
+[ashu@ip-172-31-91-4 ashu-images]$ 
+```
+
+### copy kubeconfig file to homedirectoy 
+
+```
+[ashu@ip-172-31-91-4 ashu-images]$ mkdir  ~/.kube 
+mkdir: cannot create directory ‘/home/ashu/.kube’: File exists
+[ashu@ip-172-31-91-4 ashu-images]$ 
+[ashu@ip-172-31-91-4 ashu-images]$ cp  -v admin.conf   ~/.kube/config  
+‘admin.conf’ -> ‘/home/ashu/.kube/config’
+[ashu@ip-172-31-91-4 ashu-images]$ 
+[ashu@ip-172-31-91-4 ashu-images]$ kubectl  get  nodes 
+NAME            STATUS   ROLES           AGE    VERSION
+control-plane   Ready    control-plane   105m   v1.25.2
+minion-node-1   Ready    <none>          104m   v1.25.2
+minion-node-2   Ready    <none>          103m   v1.25.2
+minion-node-3   Ready    <none>          103m   v1.25.2
+```
+
+
 
