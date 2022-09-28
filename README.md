@@ -218,4 +218,37 @@ ashuweb-c1          "entrypoint.sh docke…"   ashuweb-app         running      
 
 ```
 
+### volume 
+
+```
+version: '3.8' # compose file version 
+networks: # creating network bridge 
+  ashudb-br1: # name of bridge 
+volumes: # for creating volume 
+  ashudb-vol2: # name of volume 
+services:
+  ashuweb-app: # webapp for connecting db 
+    image: adminer 
+    container_name: ashuweb-c1 
+    networks:
+    - ashudb-br1 
+    ports: # port forwarding 
+    - 1234:8080 
+    depends_on: # 
+    - ashudb-app 
+  ashudb-app: # service name of db 
+    image: mysql 
+    container_name: ashudbc2 
+    environment: # passing env 
+      MYSQL_ROOT_PASSWORD: "Ciscodb@098"
+      MYSQL_USER: cisco
+      MYSQL_PASSWORD: "New@098#"
+    volumes: # attaching volume we created above 
+    - /home/ashu/ashu-images/ashu-compose/db-storage:/var/lib/mysql/
+    networks: # attaching network 
+    - ashudb-br1 
+    restart: always # to auto start container 
+```
+
+
 
