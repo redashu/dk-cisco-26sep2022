@@ -250,5 +250,26 @@ services:
     restart: always # to auto start container 
 ```
 
+### deployment of containerized app in prod gonna face below problems 
+
+<img src="prob.png">
+
+
+## Intro to container orchestration 
+
+<img src="k8s.png">
+
+## k8s architecture  understanding Level 1 
+
+<img src="k8s1.png">
+
+### setup methods for k8s 
+
+<img src="setup.png">
+
+### kube-apiserver on control plane 
+
+<img src="api.png">
+
 
 
