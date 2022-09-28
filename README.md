@@ -536,4 +536,66 @@ pod "ashupod-123" deleted
 
 ```
 
+### cleaning up all the pods 
+
+```
+ashu@ip-172-31-91-4 ~]$ kubectl delete pod --all
+pod "balajnat-pod-1" deleted
+pod "prampod123" deleted
+pod "yashpod-123" deleted
+
+```
+
+### deploy pod from quay image registry 
+
+```
+apiVersion: 'v1' # cp apiserver version 
+kind: Pod # resource type in apiver version v1 
+metadata: # info about Resource pod 
+  name: ashupod-123 # name of pod 
+spec: 
+  containers: # info about containers 
+  - name: ashuc1 
+    image: quay.io/libpod/alpine # k8s is taking image from docker hub by default 
+    command: ['/bin/sh','-c','ping fb.com']
+
+```
+
+### auto generating yaml / json for pod 
+
+```
+442  kubectl run  ashupod1 --image=quay.io/libpod/alpine  --dry-run=client  -o yaml 
+  443  kubectl run  ashupod1 --image=quay.io/libpod/alpine --command ping fb.com  --dry-run=client  -o yaml 
+  444  kubectl run  ashupod1 --image=quay.io/libpod/alpine --command ping fb.com  --dry-run=client  -o json 
+  445  history 
+
+```
+
+
+### saving yaml in a file 
+
+```
+kubectl run  ashupod1 --image=quay.io/libpod/alpine --command ping fb.com  --dry-run=client  -o yaml  >auto.yaml
+```
+
+### deploy pod 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f auto.yaml 
+pod/ashupod1 created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po 
+NAME       READY   STATUS    RESTARTS   AGE
+ashupod1   1/1     Running   0          2s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+```
+
+### delete pod 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po 
+NAME       READY   STATUS    RESTARTS   AGE
+ashupod1   1/1     Running   0          2s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  delete -f  auto.yaml 
+pod "ashupod1" deleted
+```
 
