@@ -355,5 +355,53 @@ minion-node-2   Ready    <none>          103m   v1.25.2
 minion-node-3   Ready    <none>          103m   v1.25.2
 ```
 
+### checking from client of k8s 
+
+```
+[ashu@ip-172-31-91-4 ashu-images]$ kubectl  cluster-info 
+Kubernetes control plane is running at https://172.31.87.27:6443
+CoreDNS is running at https://172.31.87.27:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+[ashu@ip-172-31-91-4 ashu-images]$ 
+
+```
+
+### introduction to POD 
+
+<img src="pod.png">
+
+### POd example. 1 
+
+```
+apiVersion: 'v1' # cp apiserver version 
+kind: Pod # resource type in apiver version v1 
+metadata: # info about Resource pod 
+  name: ashupod-123 # name of pod 
+spec: 
+  containers: # info about containers 
+  - name: ashuc1 
+    image: alpine
+    command: ['/bin/sh','-c','ping fb.com']
+
+```
+
+### send request to apiserver 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ ls
+ashu-pod1.yaml
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f ashu-pod1.yaml 
+pod/ashupod-123 created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  pods
+NAME               READY   STATUS              RESTARTS   AGE
+ashupod-123        1/1     Running             0          9s
+narasimhapod-123   0/1     ContainerCreating   0          0s
+priyankapod-123    1/1     Running             0          16s
+sri1               1/1     Running             0          2s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+```
+
 
 
