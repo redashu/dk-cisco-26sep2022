@@ -271,5 +271,13 @@ services:
 
 <img src="api.png">
 
+### schedular in control plane 
+
+<img src="sch.png">
+
+### etcd in control plane 
+
+<img src="etcd.png">
+
 
 
