@@ -271,5 +271,89 @@ ashuwebapp        1/1     Running   0          26m     192.168.97.95     minion-
 
 <img src="extlbapp.png">
 
+## 3 problems as of current section 
+
+<img src="prob.png">
+
+### Namespace in k8s 
+
+<img src="ns.png">
+
+### creating namespace 
+
+```
+ashu@ip-172-31-91-4 ~]$ kubectl   get  namespaces 
+NAME              STATUS   AGE
+default           Active   24h
+kube-node-lease   Active   24h
+kube-public       Active   24h
+kube-system       Active   24h
+[ashu@ip-172-31-91-4 ~]$ kubectl  create  namespace  ashu-apps 
+namespace/ashu-apps created
+[ashu@ip-172-31-91-4 ~]$ kubectl  get  ns
+NAME              STATUS   AGE
+ashu-apps         Active   4s
+default           Active   24h
+kube-node-lease   Active   24h
+kube-public       Active   24h
+kube-system       Active   24h
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
+### setting default namespace  & checking 
+
+```
+ashu@ip-172-31-91-4 ~]$ kubectl  config set-context --current --namespace  ashu-apps 
+Context "kubernetes-admin@kubernetes" modified.
+[ashu@ip-172-31-91-4 ~]$ 
+
+
+[ashu@ip-172-31-91-4 ~]$ kubectl  config get-contexts 
+CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPACE
+*         kubernetes-admin@kubernetes   kubernetes   kubernetes-admin   ashu-apps
+[ashu@ip-172-31-91-4 ~]$ 
+
+
+```
+
+### checking resources here 
+
+```
+[ashu@ip-172-31-91-4 ~]$ kubectl   get  pods
+No resources found in ashu-apps namespace.
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ kubectl   get  svc
+No resources found in ashu-apps namespace.
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
+### being super user in k8s we can access other namespace data also 
+
+```
+ashu@ip-172-31-91-4 ~]$ kubectl  get po -n default 
+NAME              READY   STATUS             RESTARTS        AGE
+ankurwebapp       1/1     Running            0               26m
+balaj-webapp      1/1     Running            0               29m
+mufimwebapp1      1/1     Running            0               15m
+narasimhawebapp   1/1     Running            0               22m
+pramodwebapp      0/1     CrashLoopBackOff   9 (2m43s ago)   24m
+pramodwebapp1     1/1     Running            0               14m
+priyankapod2      1/1     Running            0               29m
+sridharpod        1/1     Running            0               21m
+stevewebapp       1/1     Running            0               31m
+suhas-webapp      1/1     Running            0               28m
+yashwebapp        1/1     Running            0               22m
+[ashu@ip-172-31-91-4 ~]$ kubectl  delete pod --all -n default 
+pod "ankurwebapp" deleted
+pod "balaj-webapp" deleted
+pod "mufimwebapp1" deleted
+pod "narasimhawebapp" deleted
+pod "pramodwebapp" deleted
+pod "pramodwebapp1" deleted
+pod "priyankapod2" deleted
+
+```
 
 
