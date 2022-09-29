@@ -483,3 +483,141 @@ NAME      ENDPOINTS                                                AGE
 ashulb2   192.168.138.83:80,192.168.174.251:80,192.168.97.125:80   4m29s
 ```
 
+### Deleting svc 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  svc
+NAME      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashulb2   NodePort   10.109.174.170   <none>        1234:32194/TCP   8m59s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  delete  svc  ashulb2 
+service "ashulb2" deleted
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  ep
+No resources found in ashu-apps namespace.
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+```
+
+### auto match label of pod to selector of service 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           19m
+[ashu@ip-172-31-91-4 k8s-app-deplo
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl expose deployment  ashu-deploy --type NodePort --port 80 --name ashulb2 
+service/ashulb2 exposed
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl get  svc 
+NAME      TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+ashulb2   NodePort   10.96.146.45   <none>        80:31458/TCP   5s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl get  ep 
+NAME      ENDPOINTS          AGE
+ashulb2   192.168.97.67:80   9s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+```
+
+### autoscaling need ??
+
+<img src="auto.png">
+
+### Deploy a private image to k8s 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  create  deployment ashu-appnew --image=phx.ocir.io/axmbtg8judkl/ciscoapp:ashuapp1   --port 8080 --dry-run=client -o yaml >private_deployment.yaml 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f private_deployment.yaml 
+deployment.apps/ashu-appnew created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po 
+NAME                           READY   STATUS         RESTARTS   AGE
+ashu-appnew-7f5d799c5d-pxprt   0/1     ErrImagePull   0          4s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+```
+## Introduction to Secret 
+
+<img src="secret.png">
+
+### secret creating 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  create  secret  
+Create a secret using specified subcommand.
+
+Available Commands:
+  docker-registry   Create a secret for use with a Docker registry
+  generic           Create a secret from a local file, directory, or literal value
+  tls               Create a TLS secret
+
+=====
+kubectl  create  secret   docker-registry   ashu-sec  --docker-server=phx.ocir.io             --docker-username="a8judkl/learl.com" --docker-password=";IDj"  --dry-run=client -o yaml     >secret1.yaml 
+```
+
+### creating it 
+
+```
+ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f secret1.yaml 
+secret/ashu-sec created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  secret  
+NAME       TYPE                             DATA   AGE
+ashu-sec   kubernetes.io/dockerconfigjson   1      4s
+```
+
+### redeploy it 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-appnew
+  name: ashu-appnew
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-appnew
+  strategy: {}
+  template: # for pod creation purpose 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-appnew
+    spec:
+      imagePullSecrets: # calling secret from current namesapce 
+      - name: ashu-sec 
+      containers:
+      - image: phx.ocir.io/axmbtg8judkl/ciscoapp:ashuapp1
+        name: ciscoapp
+        ports:
+        - containerPort: 8080
+        resources: {}
+status: {}
+
+```
+
+### 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f  private_deployment.yaml 
+deployment.apps/ashu-appnew configured
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-appnew   0/1     1            0           13m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  po 
+NAME                           READY   STATUS              RESTARTS   AGE
+ashu-appnew-7b9cfc99f-sdt4z    0/1     ContainerCreating   0          7s
+ashu-appnew-7f5d799c5d-pxprt   0/1     ImagePullBackOff    0          14m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  po 
+NAME                          READY   STATUS    RESTARTS   AGE
+ashu-appnew-7b9cfc99f-sdt4z   1/1     Running   0          18s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+```
+
