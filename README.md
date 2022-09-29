@@ -135,4 +135,141 @@ round-trip min/avg/max = 0.502/0.554/0.610 ms
 
 <img src="label.png">
 
+## Practise Networking 
+
+### creating webapp pod 
+
+```
+kubectl run ashuwebapp --image=docker.io/dockerashu/ciscoapp:v1  --port 80 --dry-run=client   -o yaml  >webapp.yaml 
+```
+
+### modified YAML 
+
+```
+apiVersion: v1
+kind: Pod
+metadata: # info about Resource like pod 
+  creationTimestamp: null
+  labels: # label of my pod 
+    x1: helloashu # here x1 is key and helloashu is value 
+  name: ashuwebapp # name of pod 
+spec:
+  containers:
+  - image: docker.io/dockerashu/ciscoapp:v1
+    name: ashuwebapp
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+```
+
+### lets deploy it 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ ls
+ashu-pod1.yaml  auto.yaml  logs.txt  task1.yaml  webapp.yaml
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f webapp.yaml 
+pod/ashuwebapp created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get po 
+NAME          READY   STATUS              RESTARTS   AGE
+ashuwebapp    0/1     ContainerCreating   0          3s
+sriwebapp     1/1     Running             0          2s
+stevewebapp   1/1     Running             0          19s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get po --show-labels
+NAME              READY   STATUS    RESTARTS   AGE   LABELS
+ashuwebapp        1/1     Running   0          7s    x1=helloashu
+narasimhawebapp   1/1     Running   0          2s    x1=hellonarasimha
+priyankawebapp    1/1     Running   0          3s    x1=hellopriyanka
+sriwebapp         1/1     Running   0          6s    run=sriwebapp,x1=hellosri
+stevewebapp       1/1     Running   0          23s   app-label=steve-webapp
+```
+
+### Introduction to Internal lB in k8s -- created by service resource under api v1 
+
+<img src="stype.png">
+
+### Service type with expose app options 
+
+<img src="expose.png">
+
+### NodePOrt vs LoadBalancer service 
+
+<img src="nplb.png">
+
+### creating nodeport service 
+
+```
+kubectl  create   service  nodeport  ashu-internal-lb1   --tcp 1234:80  --dry-run=client -o yaml >nodeport1.yaml 
+```
+###
+
+
+<img src="np.png">
+
+### creating serivces and checking EPs
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f nodeport1.yaml 
+service/ashu-internal-lb1 created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  services
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+ashu-internal-lb1   NodePort    10.99.248.229   <none>        1234:32298/TCP   11s
+kubernetes          ClusterIP   10.96.0.1       <none>        443/TCP          22h
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  endpoints 
+NAME                 ENDPOINTS           AGE
+ashu-internal-lb1    <none>              35s
+kubernetes           172.31.87.27:6443   22h
+sri-int-lb           <none>              22s
+suhas-internal-lb1   <none>              15s
+```
+
+
+### updating selector section and reapply it 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels: # label of service 
+    app: ashu-internal-lb1
+  name: ashu-internal-lb1 # name of service 
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234 # internal LB port 
+    protocol: TCP
+    targetPort: 80 # target pod application port 
+  selector: # pod finder using below given label 
+    x1: helloashu # ashuapp pod label 
+  type: NodePort # type of service 
+status:
+  loadBalancer: {}
+
+```
+
+### 
+
+```
+ kubectl  apply -f nodeport1.yaml 
+ [ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  svc  ashu-internal-lb1 
+NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+ashu-internal-lb1   NodePort   10.99.248.229   <none>        1234:32298/TCP   5m53s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  ep   ashu-internal-lb1 
+NAME                ENDPOINTS          AGE
+ashu-internal-lb1   192.168.97.95:80   6m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  po -o wide  |  grep ashu
+ashuwebapp        1/1     Running   0          26m     192.168.97.95     minion-node-2   <none>           <none>
+```
+
+### External LB for single app 
+
+<img src="extlbapp.png">
+
+
 
