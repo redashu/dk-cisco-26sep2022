@@ -121,4 +121,18 @@ round-trip min/avg/max = 0.502/0.554/0.610 ms
 [click_here](https://projectcalico.docs.tigera.io/getting-started/kubernetes/)
 
 
+## K8s InterMediate Networking 
+
+### External Lb to NOde--Internal-lB ---POd 
+
+<img src="extlb.png">
+
+### Internal LB can be created by Service Resources in k8s 
+
+<img src="svc.png">
+
+### Concept to labels to update Internal lB db with POdIP:port 
+
+<img src="label.png">
+
 
