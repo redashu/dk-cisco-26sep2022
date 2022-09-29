@@ -355,5 +355,131 @@ pod "pramodwebapp1" deleted
 pod "priyankapod2" deleted
 
 ```
+### Scaling in Pod 
 
+<img src="scale.png">
+
+### K8s Controllers 
+
+<img src="contr.png">
+
+### creating deployment YAML 
+
+```
+ kubectl  create  deployment  ashu-deploy  --image=docker.io/dockerashu/ciscoapp:v1  --port 80  --dry-run=client -o yaml  >deployment1.yaml 
+```
+
+### lets deploy it 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f deployment1.yaml 
+deployment.apps/ashu-deploy created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deployment 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           10s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  po 
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-deploy-76cd4cf9c9-hlchp   1/1     Running   0          21s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+```
+
+### Now deployment based pod is having recreation nature 
+
+```
+ 546  kubectl config get-contexts 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get po -o wide
+NAME                           READY   STATUS    RESTARTS   AGE     IP                NODE            NOMINATED NODE   READINESS GATES
+ashu-deploy-76cd4cf9c9-hlchp   1/1     Running   0          2m47s   192.168.174.245   minion-node-3   <none>           <none>
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  delete  pod  ashu-deploy-76cd4cf9c9-hlchp
+pod "ashu-deploy-76cd4cf9c9-hlchp" deleted
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get po -o wide
+NAME                           READY   STATUS    RESTARTS   AGE   IP                NODE            NOMINATED NODE   READINESS GATES
+ashu-deploy-76cd4cf9c9-nxc99   1/1     Running   0          23s   192.168.174.251   minion-node-3   <none>           <none>
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+```
+
+### creating nodeport service 
+
+```
+kubectl  create  service nodeport  ashulb2 --tcp 1234:80 --dry-run=client -o yaml >nodeport2.yaml 
+
+```
+
+### updating label of pod from deployment to service selector section 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashulb2
+  name: ashulb2
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+  selector: # pod finder using below label 
+    app: ashu-deploy # label of pod 
+  type: NodePort
+status:
+  loadBalancer: {}
+
+```
+
+### 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f nodeport2.yaml 
+service/ashulb2 created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  svc
+NAME      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashulb2   NodePort   10.109.174.170   <none>        1234:32194/TCP   5s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  ep
+NAME      ENDPOINTS            AGE
+ashulb2   192.168.174.251:80   9s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+```
+
+
+### scaling pod manually 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           11m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl scale deployment  ashu-deploy --replicas=3
+deployment.apps/ashu-deploy scaled
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   3/3     3            3           12m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-deploy-76cd4cf9c9-gn6dc   1/1     Running   0          11s
+ashu-deploy-76cd4cf9c9-nxc99   1/1     Running   0          9m10s
+ashu-deploy-76cd4cf9c9-w58p4   1/1     Running   0          11s
+```
+
+### scaling pod will automatically update EP 
+
+```
+  574  kubectl scale deployment  ashu-deploy --replicas=3
+  575  kubectl  get  deploy 
+  576  kubectl  get  po
+  577  history 
+  578  kubectl  get  po 
+  579  kubectl  get  po -o wide
+  580  history 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  svc
+NAME      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashulb2   NodePort   10.109.174.170   <none>        1234:32194/TCP   4m23s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  ep 
+NAME      ENDPOINTS                                                AGE
+ashulb2   192.168.138.83:80,192.168.174.251:80,192.168.97.125:80   4m29s
+```
 
