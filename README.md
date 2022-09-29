@@ -691,6 +691,113 @@ version.BuildInfo{Version:"v3.10.0", GitCommit:"ce66412a723e4d89555dc67217607c65
 ```
 
 
+### Hub Vs Repo 
+
+```
+ 560  helm search  hub 
+  561  history 
+  562  helm search  hub   mysql 
+  563  helm search  hub  nginx 
+  564  history 
+[ashu@ip-172-31-91-4 ~]$ helm repo list
+Error: no repositories to show
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ helm repo add  ashu-repo https://charts.bitnami.com/bitnami
+"ashu-repo" has been added to your repositories
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ helm repo list
+NAME     	URL                               
+ashu-repo	https://charts.bitnami.com/bitnami
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
+### searching packages on Repo 
+
+```
+ashu@ip-172-31-91-4 ~]$ helm search  repo  mysql 
+NAME                    	CHART VERSION	APP VERSION	DESCRIPTION                                       
+ashu-repo/mysql         	9.3.4        	8.0.30     	MySQL is a fast, reliable, scalable, and easy t...
+ashu-repo/phpmyadmin    	10.3.4       	5.2.0      	phpMyAdmin is a free software tool written in P...
+ashu-repo/mariadb       	11.3.1       	10.6.10    	MariaDB is an open source, community-developed ...
+ashu-repo/mariadb-galera	7.4.3        	10.6.10    	MariaDB Galera is a multi-primary database clus...
+[ashu@ip-172-31-91-4 ~]$ helm search  repo  nginx 
+NAME                              	CHART VERSION	APP VERSION	DESCRIPTION                                       
+ashu-mirantis/nginx               	0.1.0        	1.16.0     	A NGINX Docker Community based Helm chart for K...
+ashu-repo/nginx                   	13.2.6       	1.23.1     	NGINX Open Source is a web server that can be a...
+ashu-repo/nginx-ingress-controller	9.3.13       	1.3.1      	NGINX Ingress Controller is an Ingress controll...
+ashu-repo/nginx-intel             	2.1.5        	0.4.7      	NGINX Open Source for Intel is a lightweight se...
+ashu-repo/kong                    	5.0.2        	2.7.0      	Kong is a scalable, open source API layer (aka ...
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
+### deploying nginx app using helm form Repo 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm repo ls 
+NAME            URL                               
+ashu-repo       https://charts.bitnami.com/bitnami
+ashu-mirantis   https://charts.mirantis.com       
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm  install  ashu-web-app    ashu-repo/nginx  
+NAME: ashu-web-app
+LAST DEPLOYED: Thu Sep 29 11:38:15 2022
+NAMESPACE: ashu-apps
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: nginx
+CHART VERSION: 13.2.6
+APP VERSION: 1.23.1
+
+** Please be patient while the 
+```
+
+### check running deployment in k8s by your helm 
+
+```
+ashu@ip-172-31-91-4 k8s-app-deploy]$ helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+ashu-web-app    ashu-apps       1               2022-09-29 11:38:15.398889993 +0000 UTC deployed        nginx-13.2.6    1.23.1     
+```
+
+### check it by k8s 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deployment 
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-web-app-nginx   1/1     1            1           4m37s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  svc
+NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+ashu-web-app-nginx   LoadBalancer   10.109.57.185   <pending>     80:32306/TCP   4m47s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+```
+
+### Unsinstall / delete helm packages 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+ashu-web-app    ashu-apps       1               2022-09-29 11:38:15.398889993 +0000 UTC deployed        nginx-13.2.6    1.23.1     
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm uninstall ashu-web-app
+release "ashu-web-app" uninstalled
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm ls
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy
+No resources found in ashu-apps namespace.
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  svc
+No resources found in ashu-apps namespace.
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+```
+
 
 
 
