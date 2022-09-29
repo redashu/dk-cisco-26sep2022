@@ -621,3 +621,76 @@ ashu-appnew-7b9cfc99f-sdt4z   1/1     Running   0          18s
 
 ```
 
+### creating service 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-appnew   1/1     1            1           42m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  expose deploy  ashu-appnew  --type NodePort --port 8080 --name ashulb3  --dry-run=client -o yaml >np4.yaml 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f np4.yaml 
+service/ashulb3 created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  svc
+NAME      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashulb3   NodePort   10.102.159.129   <none>        8080:31161/TCP   3s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl   get  ep
+NAME      ENDPOINTS             AGE
+ashulb3   192.168.138.96:8080   6s
+```
+
+### Introduction to k8s package manager -- HELM 
+
+<img src="helm.png">
+
+### Installing helm on linux client machine 
+
+```
+[root@ip-172-31-91-4 ~]# wget  https://get.helm.sh/helm-v3.10.0-linux-amd64.tar.gz
+--2022-09-29 11:18:57--  https://get.helm.sh/helm-v3.10.0-linux-amd64.tar.gz
+Resolving get.helm.sh (get.helm.sh)... 152.195.19.97, 2606:2800:11f:1cb7:261b:1f9c:2074:3c
+Connecting to get.helm.sh (get.helm.sh)|152.195.19.97|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 14530566 (14M) [application/x-tar]
+Saving to: 'helm-v3.10.0-linux-amd64.tar.gz'
+
+100%[==================================================================================================================>] 14,530,566  --.-K/s   in 0.1s    
+
+2022-09-29 11:18:57 (101 MB/s) - 'helm-v3.10.0-linux-amd64.tar.gz' saved [14530566/14530566]
+
+[root@ip-172-31-91-4 ~]# ls
+ddagent-install.log  helm-v3.10.0-linux-amd64.tar.gz  test
+[root@ip-172-31-91-4 ~]# tar xvzf helm-v3.10.0-linux-amd64.tar.gz 
+linux-amd64/
+linux-amd64/helm
+linux-amd64/LICENSE
+linux-amd64/README.md
+[root@ip-172-31-91-4 ~]# ls
+ddagent-install.log  helm-v3.10.0-linux-amd64.tar.gz  linux-amd64  test
+[root@ip-172-31-91-4 ~]# cd linux-amd64/
+[root@ip-172-31-91-4 linux-amd64]# ls
+LICENSE  README.md  helm
+[root@ip-172-31-91-4 linux-amd64]# mv helm  /usr/bin/
+[root@ip-172-31-91-4 linux-amd64]# 
+
+```
+
+
+### checking its installation 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm version 
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/ashu/.kube/config
+WARNING: Kubernetes configuration file is world-readable. This is insecure. Location: /home/ashu/.kube/config
+version.BuildInfo{Version:"v3.10.0", GitCommit:"ce66412a723e4d89555dc67217607c6579ffcb21", GitTreeState:"clean", GoVersion:"go1.18.6"}
+
+
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ chmod  400  ~/.kube/config 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ helm version 
+version.BuildInfo{Version:"v3.10.0", GitCommit:"ce66412a723e4d89555dc67217607c6579ffcb21", GitTreeState:"clean", GoVersion:"go1.18.6"}
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+```
+
+
+
+
+
