@@ -599,6 +599,101 @@ ashu-route-rule   nginx   jaipur.ashutoshh.in   172.31.89.226   80      104s
 [ashu@ip-172-31-91-4 k8s-app-deploy]$ 
 [ashu@ip-172-31-91-4 k8s-app-deploy]$ 
 ```
+### creating Helm charts 
 
+### create chart 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ mkdir  mycharts
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ cd  mycharts/
+[ashu@ip-172-31-91-4 mycharts]$ ls
+[ashu@ip-172-31-91-4 mycharts]$ helm create  ashu-webapp
+Creating ashu-webapp
+[ashu@ip-172-31-91-4 mycharts]$ ls  
+ashu-webapp
+[ashu@ip-172-31-91-4 mycharts]$ ls  ashu-webapp/
+charts  Chart.yaml  templates  values.yaml
+[ashu@ip-172-31-91-4 mycharts]$ 
+
+```
+
+### chart structure understanding 
+
+<img src="str.png">
+
+### VOlume OPtion with pod 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: d1
+  name: d1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: d1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: d1
+    spec:
+      volumes:
+      - name: ashuvol1 # volume name 
+        nfs: 
+          server: 172.31.91.4 
+          path: /data/ashu
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        ports:
+        - containerPort: 3306
+        env: 
+        - name: MYSQL_ROOT_PASSWORD
+          value: CiscoDb@098 # store in secret and call it 
+        volumeMounts:
+        - name: ashuvol1
+          mountPath: /var/lib/mysql/
+        resources: {}
+status: {}
+
+```
+
+### RBAC 
+
+<img src="rbac.png">
+
+###
+
+```
+ 864  kubectl  get  serviceaccount -n dev
+  865  kubectl  get  secret  -n dev
+  866  kubectl  create  role  pod-access  --verb=get --verb=list --verb=watch --resource=pods
+  867  kubectl  create  role  pod-access  --verb=get --verb=list --verb=watch --resource=pods -n dev 
+  868  kubectl create rolebinding  b1  --role pod-access  --serviceaccount=dev:default -n dev
+  869  history 
+  870  kubectl   get  sa -n dev 
+  871  kubectl   get  secret  -n dev 
+  872  kubectl   get role  -n dev 
+  873  kubectl   get rolebinding  -n dev 
+  874  kubectl  describe secret  password  -n dev 
+  875  history 
+  876  cd  ashu-images/
+  877  ls
+  878  cd  k8s-app-deploy/
+  879  ls
+  880  cat  custom.yaml 
+  881  kubectl  get  nodes --kubeconfig custom.yaml 
+  882  kubectl  get ns  --kubeconfig custom.yaml 
+  883  kubectl  get po   --kubeconfig custom.yaml 
+  884  kubectl  get svc   --kubeconfig custom.yaml 
+  885  history 
+
+```
 
 
