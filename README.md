@@ -170,6 +170,293 @@ cpu_manager_state  kubeadm-flags.env  pki                   plugins_registry  po
 0e2f4065f73b9283efca87146ca2d3
 ```
 
+## HPA in k8s 
+
+<img src="hpa.png">
+
+### Implementing metric server in k8s 
+
+```
+ashu@ip-172-31-91-4 ~]$ kubectl apply -f https://raw.githubusercontent.com/redashu/k8s/hpa/hpa/components.yaml
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ kubectl  get  po -n kube-system 
+NAME                                       READY   STATUS    RESTARTS       AGE
+calico-kube-controllers-58dbc876ff-ls87g   1/1     Running   2 (161m ago)   46h
+calico-node-q4d48                          1/1     Running   2 (161m ago)   46h
+calico-node-qkh96                          1/1     Running   2 (161m ago)   46h
+calico-node-wm7m5                          1/1     Running   2 (161m ago)   46h
+calico-node-zkpn2                          1/1     Running   2 (161m ago)   46h
+coredns-565d847f94-8t8zw                   1/1     Running   2 (161m ago)   46h
+coredns-565d847f94-m2swp                   1/1     Running   2 (161m ago)   46h
+etcd-control-plane                         1/1     Running   2 (161m ago)   46h
+kube-apiserver-control-plane               1/1     Running   2 (161m ago)   46h
+kube-controller-manager-control-plane      1/1     Running   2 (161m ago)   46h
+kube-proxy-ltxf4                           1/1     Running   2 (161m ago)   46h
+kube-proxy-ntxkw                           1/1     Running   2 (161m ago)   46h
+kube-proxy-nxswg                           1/1     Running   2 (161m ago)   46h
+kube-proxy-zqnd6                           1/1     Running   2 (161m ago)   46h
+kube-scheduler-control-plane               1/1     Running   2 (161m ago)   46h
+metrics-server-767967fcd-nt2gw             1/1     Running   0              8s
+[ashu@ip-172-31-91-4 ~]$ 
+
+```
+
+### Demo 
+
+### creating deployment YAML 
+
+```
+kubectl create  deployment ashu-hpa-deploy --image=docker.io/dockerashu/ciscoapp:v1  --port 80 --dry-run=client -o yaml  >hpa_demo.yaml 
+```
+
+### updated YAML with Resources 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-hpa-deploy
+  name: ashu-hpa-deploy # name of Deployment 
+  namespace: ashu-apps # namespace info 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-hpa-deploy
+  strategy: {}
+  template: # for pod creation purpose 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-hpa-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/ciscoapp:v1
+        name: ciscoapp
+        ports:
+        - containerPort: 80
+        resources: # cgroups implementation 
+          requests: # default resources by pod container 
+            memory: 200M 
+            cpu: 100m # 1vcpu -- 1000m --m milicore 
+          limits:  # max it can use 
+            memory: 400M 
+            cpu: 200m 
+status: {}
+
+```
+
+### Deploy it 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f hpa_demo.yaml 
+deployment.apps/ashu-hpa-deploy created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-hpa-deploy   1/1     1            1           7s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po
+NAME                               READY   STATUS    RESTARTS   AGE
+ashu-hpa-deploy-5cd97b5cc7-7p4tg   1/1     Running   0          11s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+```
+
+### adding service in same YAML 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-hpa-deploy
+  name: ashu-hpa-deploy # name of Deployment 
+  namespace: ashu-apps # namespace info 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-hpa-deploy
+  strategy: {}
+  template: # for pod creation purpose 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-hpa-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/ciscoapp:v1
+        name: ciscoapp
+        ports:
+        - containerPort: 80
+        resources: # cgroups implementation 
+          requests: # default resources by pod container 
+            memory: 200M 
+            cpu: 100m # 1vcpu -- 1000m --m milicore 
+          limits:  # max it can use 
+            memory: 400M 
+            cpu: 200m 
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-hpa-deploy
+  name: ashulb01
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: ashu-hpa-deploy
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+
+### lets deploy it 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  apply -f hpa_demo.yaml 
+deployment.apps/ashu-hpa-deploy configured
+service/ashulb01 created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  svc
+NAME       TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+ashulb01   NodePort   10.96.98.48   <none>        80:30734/TCP   10s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+```
+
+### writing HPA rule 
+
+```
+ kubectl  autoscale   deployment  ashu-hpa-deploy  --cpu-percent 70 --max=20 --min=3  --dry-run=client -o yaml
+```
+
+### final YAML 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-hpa-deploy
+  name: ashu-hpa-deploy # name of Deployment 
+  namespace: ashu-apps # namespace info 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-hpa-deploy
+  strategy: {}
+  template: # for pod creation purpose 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-hpa-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/ciscoapp:v1
+        name: ciscoapp
+        ports:
+        - containerPort: 80
+        resources: # cgroups implementation 
+          requests: # default resources by pod container 
+            memory: 200M 
+            cpu: 100m # 1vcpu -- 1000m --m milicore 
+          limits:  # max it can use 
+            memory: 400M 
+            cpu: 200m 
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-hpa-deploy
+  name: ashulb01
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: ashu-hpa-deploy
+  type: NodePort
+status:
+  loadBalancer: {}
+  
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: ashu-hpa-deploy
+spec:
+  maxReplicas: 20
+  minReplicas: 3
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ashu-hpa-deploy
+  targetCPUUtilizationPercentage: 70
+status:
+  currentReplicas: 0
+  desiredReplicas: 0
+```
+
+### lets deploy it 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-hpa-deploy   1/1     1            1           23m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f hpa_demo.yaml 
+deployment.apps/ashu-hpa-deploy configured
+service/ashulb01 configured
+horizontalpodautoscaler.autoscaling/ashu-hpa-deploy created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  hpa
+NAME              REFERENCE                    TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+ashu-hpa-deploy   Deployment/ashu-hpa-deploy   <unknown>/70%   3         20        0          8s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-hpa-deploy   1/1     1            1           23m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+```
+
+### just wait 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-hpa-deploy   3/3     3            3           24m
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po 
+NAME                               READY   STATUS    RESTARTS   AGE
+ashu-hpa-deploy-5cd97b5cc7-7p4tg   1/1     Running   0          24m
+ashu-hpa-deploy-5cd97b5cc7-9flmq   1/1     Running   0          42s
+ashu-hpa-deploy-5cd97b5cc7-np25r   1/1     Running   0          42s
+```
 
 
 
