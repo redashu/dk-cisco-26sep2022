@@ -121,5 +121,56 @@ token:      eyJhbGciOiJSUzI1NiIsImtpZCI6InFMNlN0VzFVSzhRbGlTd3htcjViaDJscU84dnR5
 kubectl  create  clusterrolebinding  b1 --clusterrole  cluster-admin --serviceaccount=kubernetes-dashboard:kubernetes-dashboard
 ```
 
+## On-primse k8s --troubleshooting & Observation 
+
+## master / control plane -- node 
+
+### 
+
+```
+[root@control-plane ~]# cd  /etc/kubernetes/
+[root@control-plane kubernetes]# ls
+admin.conf  controller-manager.conf  kubelet.conf  manifests  pki  scheduler.conf
+[root@control-plane kubernetes]# cd pki/
+[root@control-plane pki]# ls
+apiserver-etcd-client.crt     apiserver-kubelet-client.key  ca.crt  front-proxy-ca.crt      front-proxy-client.key
+apiserver-etcd-client.key     apiserver.crt                 ca.key  front-proxy-ca.key      sa.key
+apiserver-kubelet-client.crt  apiserver.key                 etcd    front-proxy-client.crt  sa.pub
+[root@control-plane pki]# ls etcd/
+ca.crt  ca.key  healthcheck-client.crt  healthcheck-client.key  peer.crt  peer.key  server.crt  server.key
+[root@control-plane pki]# 
+[root@control-plane pki]# 
+[root@control-plane pki]# cd ..
+[root@control-plane kubernetes]# ls
+admin.conf  controller-manager.conf  kubelet.conf  manifests  pki  scheduler.conf
+[root@control-plane kubernetes]# cd  manifests/
+[root@control-plane manifests]# ls
+etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
+[root@control-plane manifests]# vim  kube-apiserver.yaml 
+[root@control-plane manifests]# 
+
+```
+
+### k8s master node datastorage
+
+```
+[root@control-plane manifests]# cd  /var/lib/
+[root@control-plane lib]# ls
+alternatives  chrony      dav       etcd           httpd      machines  os-prober  rpm        systemd
+amazon        cloud       dbus      games          initramfs  misc      plymouth   rpm-state  update-motd
+authconfig    cni         dhclient  gssproxy       kubelet    mlocate   postfix    rsyslog    xfsdump
+calico        containerd  docker    hibinit-agent  logrotate  nfs       rpcbind    stateless  yum
+[root@control-plane lib]# 
+[root@control-plane lib]# cd  kubelet/
+[root@control-plane kubelet]# ls
+config.yaml        device-plugins     memory_manager_state  plugins           pod-resources
+cpu_manager_state  kubeadm-flags.env  pki                   plugins_registry  pods
+[root@control-plane kubelet]# cd  pods/
+[root@control-plane pods]# ls
+0e2f4065f73b9283efca87146ca2d3
+```
+
+
+
 
 
