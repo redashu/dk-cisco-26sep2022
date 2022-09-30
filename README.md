@@ -61,4 +61,65 @@ kubernetes-dashboard        NodePort    10.100.111.231   <none>        443:30657
 [ashu@ip-172-31-91-4 ~]$ 
 ```
 
+### dashboard token from k8s 1.24 onwards we have to create 
+
+```
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: cicd
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/service-account.name: "kubernetes-dashboard"
+```
+### 
+
+```
+[ashu@ip-172-31-91-4 ashu-images]$ kubectl apply -f k8s-app-deploy/token.yaml 
+secret/cicd created
+[ashu@ip-172-31-91-4 ashu-images]$ kubectl  get  secret -n kubernetes-dashboard 
+NAME                              TYPE                                  DATA   AGE
+cicd                              kubernetes.io/service-account-token   3      7s
+kubernetes-dashboard-certs        Opaque                                0      12m
+kubernetes-dashboard-csrf         Opaque                                1      12m
+kubernetes-dashboard-key-holder   Opaque                                2      12m
+[ashu@ip-172-31-91-4 ashu-images]$ 
+
+
+```
+
+### getting token 
+
+```
+[ashu@ip-172-31-91-4 ~]$ kubectl  get  secret  -n kubernetes-dashboard 
+NAME                              TYPE                                  DATA   AGE
+cicd                              kubernetes.io/service-account-token   3      81s
+kubernetes-dashboard-certs        Opaque                                0      13m
+kubernetes-dashboard-csrf         Opaque                                1      13m
+kubernetes-dashboard-key-holder   Opaque                                2      13m
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ kubectl  describe secrets  cicd  -n kubernetes-dashboard 
+Name:         cicd
+Namespace:    kubernetes-dashboard
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: kubernetes-dashboard
+              kubernetes.io/service-account.uid: 6d751dc0-5075-46bd-ba23-c82c11ef0120
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1099 bytes
+namespace:  20 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6InFMNlN0VzFVSzhRbGlTd3htcjViaDJscU84dnR5RlJwSm5nRXdwa2ktUDAifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy
+```
+
+### give permission to k8s dashboard 
+
+```
+kubectl  create  clusterrolebinding  b1 --clusterrole  cluster-admin --serviceaccount=kubernetes-dashboard:kubernetes-dashboard
+```
+
+
 
