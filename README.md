@@ -458,6 +458,23 @@ ashu-hpa-deploy-5cd97b5cc7-9flmq   1/1     Running   0          42s
 ashu-hpa-deploy-5cd97b5cc7-np25r   1/1     Running   0          42s
 ```
 
+###  generate load --
+
+```
+/ # while sleep 0.001 ; do wget -q -O- http://ashulb01; done ^C
+/ # ^C
+/ # ^C
+/ # ^C
+/ # ^C
+/ # ^C
+/ # ^C
+/ # ^C
+/ # 
+Session ended, resume using 'kubectl attach load-generate -c load-generate -i -t' command when the pod is running
+pod "load-generate" deleted
+[ashu@ip-172-31-91-4 ~]$ 
+[ashu@ip-172-31-91-4 ~]$ kubectl run -it --rm  load-generate  --image=busybox --command sh 
+```
 
 
 
