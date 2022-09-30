@@ -476,5 +476,129 @@ pod "load-generate" deleted
 [ashu@ip-172-31-91-4 ~]$ kubectl run -it --rm  load-generate  --image=busybox --command sh 
 ```
 
+## Ingress controller in k8s 
+
+<img src="ingress.png">
+
+### Deploy nginx ingress controller in k8s 
+
+```
+ashu@ip-172-31-91-4 ~]$ kubectl  apply -f  https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
+namespace/ingress-nginx created
+serviceaccount/ingress-nginx created
+serviceaccount/ingress-nginx-admission created
+role.rbac.authorization.k8s.io/ingress-nginx created
+role.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+configmap/ingress-nginx-controller created
+service/ingress-nginx-controller created
+service/ingress-nginx-controller-admission created
+deployment.apps/ingress-nginx-controller created
+job.batch/ingress-nginx-admission-create created
+job.batch/ingress-nginx-admission-patch created
+ingressclass.networking.k8s.io/nginx created
+validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission created
+[ashu@ip-172-31-91-4 ~]$ 
+
+
+
+```
+
+### documentation for various platforms 
+
+```
+https://github.com/kubernetes/ingress-nginx/tree/main/deploy/static/provider
+```
+
+### lets check it 
+
+```
+[ashu@ip-172-31-91-4 ~]$ kubectl  get  deploy -n ingress-nginx 
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           88s
+[ashu@ip-172-31-91-4 ~]$ kubectl  get  svc  -n ingress-nginx 
+NAME                                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx-controller             NodePort    10.97.180.149    <none>        80:30738/TCP,443:32144/TCP   96s
+ingress-nginx-controller-admission   ClusterIP   10.111.218.253   <none>        443/TCP                      96s
+[ashu@ip-172-31-91-4 ~]$ c
+
+```
+
+### creating deployment 
+
+```
+kubectl create  deployment ashu-app --image=docker.io/dockerashu/ciscoapp:v1   --port 80 --replicas 2 --dry-run=client -o yaml  >deployapp.yaml 
+```
+
+### deployment 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f  deployapp.yaml 
+deployment.apps/ashu-app created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  deploy 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-app   2/2     2            2           3s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  po 
+NAME                       READY   STATUS    RESTARTS   AGE
+ashu-app-6b5bbb6cf-f5774   1/1     Running   0          6s
+ashu-app-6b5bbb6cf-wdr8b   1/1     Running   0          6s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+
+
+```
+
+### creating service 
+
+```
+ 851  kubectl  expose deployment ashu-app --type ClusterIP --port 80 --dry-run=client -o yaml >cls.yaml 
+  852  history 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f cls.yaml 
+service/ashu-app created
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl get svc 
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+ashu-app   ClusterIP   10.105.84.101   <none>        80/TCP    8s
+```
+
+### Ingress rule 
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ashu-route-rule # name of rule 
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx # type of ingress controller 
+  rules:
+  - host: jaipur.ashutoshh.in # yourname.ashutoshh.in
+    http:
+      paths:
+      - path: / # HOME PAGE 
+        pathType: Prefix
+        backend:
+          service:
+            name: ashu-app 
+            port:
+              number: 80
+```
+
+### deploy it 
+
+```
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl apply -f ingress.yaml 
+ingress.networking.k8s.io/ashu-route-rule unchanged
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ kubectl  get  ingress 
+NAME              CLASS   HOSTS                 ADDRESS         PORTS   AGE
+ashu-route-rule   nginx   jaipur.ashutoshh.in   172.31.89.226   80      104s
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+[ashu@ip-172-31-91-4 k8s-app-deploy]$ 
+```
+
 
 
